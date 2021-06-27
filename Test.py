@@ -34,6 +34,11 @@ ax.plot(x,y1)
 # ax.plot(x,y2)
 plt.show()
 
+IRE1.plot(x="SALE_DATE",
+          y='SALE_PRICE',
+          kind='scatter')
+plt.show()
+
 #cnty=IRE1['COUNTY']
 #saledt=IRE1['SALE_DATE'].tail(2)
 #prices=IRE1['SALE_PRICE'].tail(2)
