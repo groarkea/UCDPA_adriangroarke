@@ -38,6 +38,7 @@ IRE1.plot(x="SALE_DATE",
           y='SALE_PRICE',
           kind='scatter')
 plt.show()
+##
 
 #cnty=IRE1['COUNTY']
 #saledt=IRE1['SALE_DATE'].tail(2)
