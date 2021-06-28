@@ -4,15 +4,10 @@ import pandas as pd
 from datetime import datetime
 import matplotlib.pyplot as plt
 IRE = pd.read_csv("Property_Price_Register_Ireland-28-05-2021.csv")
-GS = pd.read_csv("GME_stock.csv")
 
-ref_start = datetime(2020,9,20)
-print(ref_start)
 
-# print(IRE['SALE_DATE'] < datetime.strftime(ref_start, fmt = '%Y-%m-%d)')
 
-IRE.plot("SALE_DATE","SALE_PRICE")
-plt.show()
+
 
 
 
@@ -24,21 +19,11 @@ print(IRE.shape,IRE1.shape)
 missing_values_count = IRE1.isnull().sum()
 print(missing_values_count[0:10])
 
-fig,ax = plt.subplots()
-# plt.show()
-x = IRE1['SALE_DATE'].head(5000)
-y1 = IRE1['SALE_PRICE'].head(5000)
-# y2 = IRE1['likes'].head(5)
-
-ax.plot(x,y1)
-# ax.plot(x,y2)
+plt.hist(IRE['COUNTY']) # 'COUNTY'
+plt.xticks(rotation='vertical')
 plt.show()
 
-IRE1.plot(x="SALE_DATE",
-          y='SALE_PRICE',
-          kind='scatter')
-plt.show()
-##
+
 
 #cnty=IRE1['COUNTY']
 #saledt=IRE1['SALE_DATE'].tail(2)
@@ -54,28 +39,6 @@ plt.show()
 # print(IRE.info())
 # print(IRE.shape)
 # print(IRE.describe())
-print(IRE.values)
+# print(IRE.values)
 # print(IRE.columns)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
