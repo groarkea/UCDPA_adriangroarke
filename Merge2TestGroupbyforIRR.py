@@ -26,18 +26,18 @@ Merged_Prices= GS.merge(GM, left_on='date', right_on='Date') \
     .merge(JP, on='Date', suffixes=('_GM','_JP'))
 
 #print(Merged_Prices.shape)
-print(Merged_Prices.head())
-#print(Merged_Prices.shape)
-#print(Merged_Prices.columns)
-
+print(Merged_Prices)
+print(Merged_Prices.shape)
+print(Merged_Prices.columns)
+#print(Merged_Prices.describe())
+#print(Merged_Prices.values.transpose())
 
 #print(Merged_Prices['close_price'].std())
 #print(Merged_Prices['Close_GM'].std())
 #print(Merged_Prices['Close_JP'].std())
 
-#Merged_Prices['Period']=Merged_Prices('date')
-#group_merged_prices = Merged_Prices.groupby('Date')['Close_JM'].mean()
-#print(group_merged_prices)
+group_merged_prices = Merged_Prices.groupby('year')['Close_JP'].mean()
+print(group_merged_prices)
 
 
 # Cl_Pr_JP = np.array(Merged_Prices['Close_JP'])
