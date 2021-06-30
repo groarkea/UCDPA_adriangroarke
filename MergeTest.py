@@ -57,8 +57,10 @@ Invest_Pr=-114
 
 list2=[Invest_Pr]
 list2.extend(list1)
-print(f'List for IRR calc: {list2}')
-clc = npf.irr(list2)
+list3=list2[0:6]
+#List2_filter = (list2 >= 100)
+print(f'List for IRR calc: {list3}')
+clc = npf.irr(list3)
 print(clc)
 
 #test =np.append(np.arr1,np.arr2)
