@@ -1,5 +1,7 @@
 import pandas as pd
 import numpy as np
+import array
+
 import numpy_financial as npf
 from datetime import datetime
 import matplotlib.pyplot as plt
@@ -32,9 +34,35 @@ Cl_Pr_JP = np.array(Merged_Prices['Close_JP'])
 Vol_JP = np.array(Merged_Prices['Volume_JP'])
 Value_JP_mil = (Cl_Pr_JP * Vol_JP)/1000000
 print(Vol_JP, Cl_Pr_JP, Value_JP_mil)
-clc = npf.irr(-100, Cl_Pr_JP)
+
+
+arr = np.array([1, 2, 3])
+print(f'NumPy Array:\n{arr}')
+
+list1 = arr.tolist()
+print(f'List: {list1}')
+
+Invest_Pr=-114
+Inv = np.array(Invest_Pr)
+
+arr = np.array(Merged_Prices['Close_JP'])
+arr1 =arr + Inv
+print(arr1)
+print(f'NumPy Array:\n{arr1}')
+list1 = arr1.tolist()
+print(f'List: {list1}')
+print(type(list1))
+Invest_Pr=-114
+
+
+list2=[Invest_Pr]
+list2.extend(list1)
+print(f'List for IRR calc: {list2}')
+clc = npf.irr(list2)
 print(clc)
 
+#test =np.append(np.arr1,np.arr2)
+#print(test)
 
 #clc = np.irr(Cl_Pr_JP)
 #print(clc)
