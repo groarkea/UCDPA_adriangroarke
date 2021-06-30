@@ -1,5 +1,6 @@
 import pandas as pd
-
+import numpy as np
+import numpy_financial as npf
 from datetime import datetime
 import matplotlib.pyplot as plt
 
@@ -22,4 +23,26 @@ print(Merged_Prices.head())
 print(Merged_Prices.shape)
 print(Merged_Prices.columns)
 
+# project1 = GS('close_price')
+print(Merged_Prices['close_price'].std())
+print(Merged_Prices['Close_GM'].std())
+print(Merged_Prices['Close_JP'].std())
 
+Cl_Pr_JP = np.array(Merged_Prices['Close_JP'])
+Vol_JP = np.array(Merged_Prices['Volume_JP'])
+Value_JP_mil = (Cl_Pr_JP * Vol_JP)/1000000
+print(Vol_JP, Cl_Pr_JP, Value_JP_mil)
+clc = npf.irr(-100, Cl_Pr_JP)
+print(clc)
+
+
+#clc = np.irr(Cl_Pr_JP)
+#print(clc)
+
+#np.irr(proj)
+
+
+
+#value= Merged_Prices['close_price']*
+# abd = np.std(project1)
+# print(abd)
