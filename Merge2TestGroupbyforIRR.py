@@ -32,9 +32,9 @@ print(Merged_Prices.columns)
 #print(Merged_Prices.describe())
 #print(Merged_Prices.values.transpose())
 
-#print(Merged_Prices['close_price'].std())
-#print(Merged_Prices['Close_GM'].std())
-#print(Merged_Prices['Close_JP'].std())
+print(Merged_Prices['close_price'].std())
+print(Merged_Prices['Close_GM'].std())
+print(Merged_Prices['Close_JP'].std())
 
 group_merged_prices = Merged_Prices.groupby('year')['Close_JP'].mean()
 print(group_merged_prices)
@@ -52,26 +52,36 @@ print(group_merged_prices)
 #list1 = arr.tolist()
 #print(f'List: {list1}')
 
-#Invest_Pr=-114
-#Inv = np.array(Invest_Pr)
+Opt_strike=[-40]
+Inv = np.array(Opt_strike)
+print(Opt_strike)
+arr = np.array(group_merged_prices)
+print(arr)
+arr1 =arr + Opt_strike
+boolean_filter = arr1 > 0
 
-#arr = np.array(Merged_Prices['Close_JP'])
-#arr1 =arr + Inv
-#print(arr1)
-#print(f'NumPy Array:\n{arr1}')
-##list1 = arr1.tolist()
-#print(f'List: {list1}')
-#print(type(list1))
-#Invest_Pr=-114
+print(arr1)
+print(boolean_filter)
+arr2 = (boolean_filter * arr1)*1
+print(arr2)
+print(type(arr2))
+print(f'NumPy Array:\n{arr2}')
+list1 = arr2.tolist()
+print(f'List: {list1}')
+print(type(list1))
+
+Opt_cost=-20
 
 
-#list2=[Invest_Pr]
-#list2.extend(list1)
+list2=[Opt_cost]
+print(list2)
+list2.extend(list1)
+
 #list3=list2[0:6]
 
-#print(f'List for IRR calc: {list3}')
-#clc = npf.irr(list3)
-#print(clc)
+print(f'List for IRR calc: {list2}')
+clc = npf.irr(list2)
+print(clc)
 
 
 
