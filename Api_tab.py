@@ -1,3 +1,4 @@
+import numpy as np
 import requests
 data=requests.get('http://api.open-notify.org/iss-now.json')
 
@@ -32,4 +33,21 @@ parsed_data5a = parsed_data5['annualReports']
 print(parsed_data5a)
 
 for temp_variable in parsed_data5a:
-    print(temp_variable['fiscalDateEnding']) #'totalAssets'
+    x = np.array(temp_variable['fiscalDateEnding'])
+    y = np.array(temp_variable['fiscalDateEnding'])
+
+    print(x,y)
+
+
+
+
+
+ #   print(temp_variable['totalAssets'])
+ #   tb = {'dt':temp_variable['fiscalDateEnding'],'Assets':temp_variable['totalAssets']}
+
+#print(tb)
+#for temp_variable in parsed_data5a:
+#    Total_assets = temp_variable['totalAssets'])
+
+#print(Annual_Rpt)
+
