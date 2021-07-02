@@ -66,6 +66,7 @@ print(clc)
 #test =np.append(np.arr1,np.arr2)
 #print(test)
 
+
 #clc = np.irr(Cl_Pr_JP)
 #print(clc)
 
