@@ -2,9 +2,9 @@ import pandas as pd
 import numpy as np
 import numpy_financial as npf
 import myCalcs as Cl
-
 import matplotlib.pyplot as plt
-
+import seaborn as sns
+sns.set_theme(style="darkgrid")
 # Import/Read 3 stock price datasets
 GS = pd.read_csv("GME_stock.csv")  #Game stop prices'
 GM = pd.read_csv("GS.csv")  #Goldman Sachs prices
@@ -58,7 +58,6 @@ ax.plot(x,y1, marker="v", linestyle="--", color="b", label='Goldman Sachs')
 ax.plot(x,y2, marker="v", linestyle="--", color="g", label='JP Morgan')
 ax.set(title='Mean Price', ylabel='Price', xlabel='Year')
 ax.legend(loc='best')
-#ax.set_xlabel("Time (months)")
 plt.show()
 
 
