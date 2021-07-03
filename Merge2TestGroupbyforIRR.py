@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import numpy_financial as npf
-
+import myCalcs as Cl
 
 import matplotlib.pyplot as plt
 
@@ -10,31 +10,69 @@ GS = pd.read_csv("GME_stock.csv")  #Game stop prices'
 GM = pd.read_csv("GS.csv")  #Goldman Sachs prices
 JP = pd.read_csv("JPM.csv")  #JPM prices
 
+# check null values
+print(JP.isna().sum())
+
 # Add year column to dataset based on pricing date
 GS['year']= pd.DatetimeIndex(GS['date']).year
 GM['year']= pd.DatetimeIndex(GM['Date']).year
 JP['year']= pd.DatetimeIndex(JP['Date']).year
+#Calculate trading volume value
+GS['tradeValue'] = Cl.Vol_by_Pr(GS['close_price'],GS['volume'])
+GM['TradeValue'] = Cl.Vol_by_Pr(GM['Close'],GM['Volume'])
+JP['TradeValue'] = Cl.Vol_by_Pr(JP['Close'],JP['Volume'])
 
 # describe shape and column of individual datasets
 print(f'Shape of Gamestop is:{GS.shape}')
+print(f'Columns of Gamestop is:{GS.columns}')
 print(f'Shape of JP Morgan is:{JP.shape}')
 print(f'Columns of JP Morgan are:{JP.columns}')
 
 #Merage 3 data sets on date
-Merged_Prices= GS.merge(GM, left_on='date', right_on='Date') \
+Merged_Prices= GS.merge(GM, left_on='date', right_on='Date', suffixes=('_GS','_GM')) \
     .merge(JP, on='Date', suffixes=('_GM','_JP'))
+print(Merged_Prices.isna().sum())
 
 #Describe Merged Prices
 print(f'Describe:{Merged_Prices}')
 print(f'Shape of Merged prices is:{Merged_Prices.shape}')
 print(f'Columns of Merged prices are:{Merged_Prices.columns}')
 
+# calculate total trading value across all 3 stocks
+Merged_Prices['TotalValue'] = Cl.All_stocks_Value(Merged_Prices['tradeValue'],Merged_Prices['TradeValue_GM'],Merged_Prices['TradeValue_GM'])
+print(Merged_Prices['TotalValue'].head())
+a= Merged_Prices['TotalValue'].sum()
+print(f'Total Trading value is:{a}')
+print(Merged_Prices.shape)
+print(Merged_Prices.describe)
+print(f'Columns of Merged prices are:{Merged_Prices.columns}')
 
+# Visualisation
+fig,ax = plt.subplots()
+x = Merged_Prices.groupby('year')['year'].mean()
+y= Merged_Prices.groupby('year')['close_price'].mean()
+y1= Merged_Prices.groupby('year')['Close_GM'].mean()
+y2= Merged_Prices.groupby('year')['Close_JP'].mean()
+ax.plot(x,y, marker="v", linestyle="dotted", color="r")
+ax.plot(x,y1, marker="v", linestyle="--", color="b")
+ax.plot(x,y2, marker="v", linestyle="--", color="g")
+plt.show()
+
+fig,ax = plt.subplots()
+g = Merged_Prices.groupby('year')['year'].mean()
+h= Merged_Prices.groupby('year')['TotalValue'].sum()
+ax.bar(g,h)
+plt.show()
 
 # Calculate volatility of Stocks
 volatility_GS =Merged_Prices['close_price'].std()
 volatility_GM = Merged_Prices['Close_GM'].std()
 volatility_JP = Merged_Prices['Close_JP'].std()
+x = np.array(Merged_Prices['close_price'],Merged_Prices['Close_GM'])
+CoVar = np.cov(x)
+Corr = np.corrcoef(x)
+print(f'Covariance: {CoVar}')
+print(f'Correlation: {Corr}')
 print(f'Volatility of GameStop Stock: {volatility_GS}')
 print(f'Volatility of Goldman Stock: {volatility_GM}')
 print(f'Volatility of JP Morgan Stock: {volatility_JP}')
@@ -66,10 +104,14 @@ list2=[Opt_cost] # lst 1 is the option cost
 list2.extend(list1) # list 2 extends list 1 so there is a list with the initial cost and annual positive returns.
 
 print(f'List for IRR calc: {list2}')
+
 clc = npf.irr(list2)
 clc2 = npf.irr(list2[0:9])
-print(f'Stock Option return since 2006: {clc}') # Investor has option to buy stock each month.
-print(f'Stock Option return from 2006 to 2013: {clc}')
+print(f'Stock Option return since 2006: {round(clc,2)}') # Investor has option to buy stock each month.
+print(f'Stock Option return from 2006 to 2013: {round(clc2,2)}')
+
+
+
 
 
 
