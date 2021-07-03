@@ -39,7 +39,7 @@ print(f'Shape of Merged prices is:{Merged_Prices.shape}')
 print(f'Columns of Merged prices are:{Merged_Prices.columns}')
 
 # calculate total trading value across all 3 stocks
-Merged_Prices['TotalValue'] = Cl.All_stocks_Value(Merged_Prices['tradeValue'],Merged_Prices['TradeValue_GM'],Merged_Prices['TradeValue_GM'])
+Merged_Prices['TotalValue'] = Cl.All_stocks_Value(Merged_Prices['tradeValue'],Merged_Prices['TradeValue_GM'],Merged_Prices['TradeValue_JP'])
 print(Merged_Prices['TotalValue'].head())
 a= Merged_Prices['TotalValue'].sum()
 print(f'Total Trading value is:{a}')
@@ -53,15 +53,63 @@ x = Merged_Prices.groupby('year')['year'].mean()
 y= Merged_Prices.groupby('year')['close_price'].mean()
 y1= Merged_Prices.groupby('year')['Close_GM'].mean()
 y2= Merged_Prices.groupby('year')['Close_JP'].mean()
-ax.plot(x,y, marker="v", linestyle="dotted", color="r")
-ax.plot(x,y1, marker="v", linestyle="--", color="b")
-ax.plot(x,y2, marker="v", linestyle="--", color="g")
+ax.plot(x,y, marker="v", linestyle="dotted", color="r", label='GameStop')
+ax.plot(x,y1, marker="v", linestyle="--", color="b", label='Goldman Sachs')
+ax.plot(x,y2, marker="v", linestyle="--", color="g", label='JP Morgan')
+ax.set(title='Mean Price', ylabel='Price', xlabel='Year')
+ax.legend(loc='best')
+#ax.set_xlabel("Time (months)")
+plt.show()
+
+
+fig,ax = plt.subplots()
+g = Merged_Prices.groupby('year')['year'].max()
+h= Merged_Prices.groupby('year')['TotalValue'].sum()
+ax.bar(g,h)
+ax.set(title='Total Trade Value', ylabel='Value in bns', xlabel='Year')
+ax.legend(loc='best')
 plt.show()
 
 fig,ax = plt.subplots()
-g = Merged_Prices.groupby('year')['year'].mean()
+i = Merged_Prices.groupby('year')['year'].max()
 h= Merged_Prices.groupby('year')['TotalValue'].sum()
-ax.bar(g,h)
+j1= Merged_Prices.groupby('year')['tradeValue'].sum()
+j2= Merged_Prices.groupby('year')['TradeValue_GM'].sum()
+j3= Merged_Prices.groupby('year')['TradeValue_JP'].sum()
+ax.bar(i,j1, label="GameStop")
+ax.bar(i,j2, bottom=j1, label='Goldman Sachs')
+ax.bar(i,j3, bottom=j1+j2, label='JP Morgan')
+ax.plot(i,h)
+ax.set(title='Total Trade Value Stacked', ylabel='Value in bns', xlabel='Year')
+ax.legend(loc='best')
+plt.show()
+
+fig, ax = plt.subplots()
+q = Merged_Prices.groupby('year')['close_price'].mean()
+s = Merged_Prices.groupby('year')['volume'].mean()
+q1 = Merged_Prices.groupby('year')['Close_GM'].mean()
+s1 = Merged_Prices.groupby('year')['Volume_GM'].mean()
+q2 = Merged_Prices.groupby('year')['Close_JP'].mean()
+s2 = Merged_Prices.groupby('year')['Volume_JP'].mean()
+ax.scatter(q, s)
+ax.scatter(q1, s1)
+ax.scatter(q2, s2)
+ax.set_xlabel("Mean Prices")
+ax.set_ylabel("Mean Volume")
+plt.show()
+
+fig, ax = plt.subplots()
+q = Merged_Prices['close_price']
+s = Merged_Prices['volume']
+q1 = Merged_Prices['Close_GM']
+s1 = Merged_Prices['Volume_GM']
+q2 = Merged_Prices['Close_JP']
+s2 = Merged_Prices['Volume_JP']
+ax.scatter(q, s)
+ax.scatter(q1, s1)
+ax.scatter(q2, s2)
+ax.set_xlabel("Mean Prices")
+ax.set_ylabel("Mean Volume")
 plt.show()
 
 # Calculate volatility of Stocks
@@ -112,7 +160,10 @@ print(f'Stock Option return from 2006 to 2013: {round(clc2,2)}')
 
 
 
-
+print(Merged_Prices.groupby('year')['TotalValue'].sum())
+print(Merged_Prices.groupby('year')['tradeValue'].sum())
+print(Merged_Prices.groupby('year')['TradeValue_GM'].sum())
+print(Merged_Prices.groupby('year')['TradeValue_JP'].sum())
 
 
 
