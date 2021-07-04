@@ -219,11 +219,15 @@ port_variance = np.dot(weights.T,np.dot(cov_matrix,weights))
 GM_Std= Merged_Prices['Prct_chg_pr_7d_GM'].std()
 JP_Std= Merged_Prices['Prct_chg_pr_7d_JP'].std()
 port_variance_frmt = (str(np.round(port_variance, 3) * 100) + '%')
+port_std=np.sqrt(port_variance)
+GM_JP_Std = Cl.PC_Format(port_std)
+
+print(f'Portfolio variance: {port_variance}')
 print(f'Portfolio variance: {port_variance_frmt}')
 print(f'Portfolio Covariance: {cov_matrix}')
 print(f'GM Std: {GM_Std}')
 print(f'JP Std: {JP_Std}')
-
+print(f'GM_JP Std: {GM_JP_Std}')
 
 #Group mean prices annually
 group_merged_prices = Merged_Prices.groupby('year')['Close_JP'].mean()
