@@ -3,3 +3,6 @@ def Vol_by_Pr(a,b):
 
 def All_stocks_Value(a,b,c):
     return a+b+c
+
+
+

@@ -17,10 +17,21 @@ print(JP.isna().sum())
 GS['year']= pd.DatetimeIndex(GS['date']).year
 GM['year']= pd.DatetimeIndex(GM['Date']).year
 JP['year']= pd.DatetimeIndex(JP['Date']).year
+
 #Calculate trading volume value
 GS['tradeValue'] = Cl.Vol_by_Pr(GS['close_price'],GS['volume'])
 GM['TradeValue'] = Cl.Vol_by_Pr(GM['Close'],GM['Volume'])
 JP['TradeValue'] = Cl.Vol_by_Pr(JP['Close'],JP['Volume'])
+
+# Calculate percentage change for all 3 stocks
+
+GS['prct_chg_pr_7d'] = GS['close_price'].pct_change(periods=7).fillna(float(0))
+GM['Prct_chg_pr_7d'] = GM['Close'].pct_change(periods=7).fillna(float(0))
+JP['Prct_chg_pr_7d'] = JP['Close'].pct_change(periods=7).fillna(float(0))
+
+GS['prct_chg_vol_7d'] = GS['volume'].pct_change(periods=7).fillna(float(0))
+GM['Prct_chg_vol_7d'] = GM['Volume'].pct_change(periods=7).fillna(float(0))
+JP['Prct_chg_vol_7d'] = JP['Volume'].pct_change(periods=7).fillna(float(0))
 
 # describe shape and column of individual datasets
 print(f'Shape of Gamestop is:{GS.shape}')
@@ -31,6 +42,7 @@ print(f'Columns of JP Morgan are:{JP.columns}')
 #Merage 3 data sets on date
 Merged_Prices= GS.merge(GM, left_on='date', right_on='Date', suffixes=('_GS','_GM')) \
     .merge(JP, on='Date', suffixes=('_GM','_JP'))
+
 print(Merged_Prices.isna().sum())
 
 #Describe Merged Prices
@@ -48,6 +60,7 @@ print(Merged_Prices.describe)
 print(f'Columns of Merged prices are:{Merged_Prices.columns}')
 
 # Visualisation
+# 1 line graph of prices
 fig,ax = plt.subplots()
 x = Merged_Prices.groupby('year')['year'].mean()
 y= Merged_Prices.groupby('year')['close_price'].mean()
@@ -61,14 +74,8 @@ ax.legend(loc='best')
 plt.show()
 
 
-fig,ax = plt.subplots()
-g = Merged_Prices.groupby('year')['year'].max()
-h= Merged_Prices.groupby('year')['TotalValue'].sum()
-ax.bar(g,h)
-ax.set(title='Total Trade Value', ylabel='Value in bns', xlabel='Year')
-ax.legend(loc='best')
-plt.show()
 
+#2 bar graph of trade value
 fig,ax = plt.subplots()
 i = Merged_Prices.groupby('year')['year'].max()
 h= Merged_Prices.groupby('year')['TotalValue'].sum()
@@ -83,32 +90,80 @@ ax.set(title='Total Trade Value Stacked', ylabel='Value in bns', xlabel='Year')
 ax.legend(loc='best')
 plt.show()
 
+#3 scatter plt all 3 close prices and volume
 fig, ax = plt.subplots()
-q = Merged_Prices.groupby('year')['close_price'].mean()
-s = Merged_Prices.groupby('year')['volume'].mean()
-q1 = Merged_Prices.groupby('year')['Close_GM'].mean()
-s1 = Merged_Prices.groupby('year')['Volume_GM'].mean()
-q2 = Merged_Prices.groupby('year')['Close_JP'].mean()
-s2 = Merged_Prices.groupby('year')['Volume_JP'].mean()
-ax.scatter(q, s)
-ax.scatter(q1, s1)
-ax.scatter(q2, s2)
-ax.set_xlabel("Mean Prices")
-ax.set_ylabel("Mean Volume")
+No_Obs =1500
+#q = Merged_Prices['close_price'].tail(No_Obs)
+#s = Merged_Prices['volume'].tail(No_Obs)
+q1 = Merged_Prices['Close_GM'].tail(No_Obs)
+s1 = Merged_Prices['Volume_GM'].tail(No_Obs)
+q2 = Merged_Prices['Close_JP'].tail(No_Obs)
+s2 = Merged_Prices['Volume_JP'].tail(No_Obs)
+#ax.scatter(q, s, label='GameStop', alpha=0.5)
+ax.scatter(q1, s1, label='Goldman', alpha=0.5, color='y')
+ax.scatter(q2, s2, label='JP Morgan', alpha=0.5)
+ax.set(title='Vol/Price Scatter plot', ylabel='Volume"', xlabel='Prices')
+
 plt.show()
 
+#3a seaborn plot of 1 stock price and volume (similar to above
+f, ax = plt.subplots(figsize=(6, 6))
+sns.scatterplot(x=q2, y=s2, s=5, color=".15", label='JP Morgan')
+sns.histplot(x=q2, y=s2, bins=50, pthresh=.1, cmap="mako")
+sns.kdeplot(x=q2, y=s2, levels=5, color="w", linewidths=1)
+ax.set(title='Vol/Price Scatter plot', ylabel='Volume"', xlabel='Price')
+ax.legend(loc='best')
+plt.show()
+
+#4a seaborn scatter plot Change in pr / change in volume
+No_Obs =1500
+q = Merged_Prices['prct_chg_pr_7d'].tail(No_Obs)
+s = Merged_Prices['prct_chg_vol_7d'].tail(No_Obs)
+q1 = Merged_Prices['Prct_chg_pr_7d_GM'].tail(No_Obs)
+s1 = Merged_Prices['Prct_chg_vol_7d_GM'].tail(No_Obs)
+q2 = Merged_Prices['Prct_chg_pr_7d_JP'].tail(No_Obs)
+s2 = Merged_Prices['Prct_chg_vol_7d_JP'].tail(No_Obs)
+
+# 4a JP
+f, ax = plt.subplots(figsize=(6, 6))
+sns.scatterplot(x=q2, y=s2, s=5, color=".15", label='JP Morgan')
+sns.histplot(x=q2, y=s2, bins=50, pthresh=.1, cmap="mako")
+sns.kdeplot(x=q2, y=s2, levels=5, color="w", linewidths=1)
+ax.set(title='6mth Percentage Change/Price Scatter plot', ylabel='Percentage Change Price"', xlabel='Percentage Change Volume')
+ax.legend(loc='best')
+plt.show()
+
+#4b  GM
+f, ax = plt.subplots(figsize=(6, 6))
+sns.scatterplot(x=q1, y=s1, s=5, color=".15", label='Goldman Sachs')
+sns.histplot(x=q1, y=s1, bins=50, pthresh=.1, cmap="mako")
+sns.kdeplot(x=q1, y=s1, levels=5, color="w", linewidths=1)
+ax.set(title='6mth Percentage Change/Price Scatter plot', ylabel='Percentage Change Price"', xlabel='Percentage Change Volume')
+ax.legend(loc='best')
+plt.show()
+
+# 5 scatter of high and low
 fig, ax = plt.subplots()
-q = Merged_Prices['close_price']
-s = Merged_Prices['volume']
-q1 = Merged_Prices['Close_GM']
-s1 = Merged_Prices['Volume_GM']
-q2 = Merged_Prices['Close_JP']
-s2 = Merged_Prices['Volume_JP']
-ax.scatter(q, s)
-ax.scatter(q1, s1)
-ax.scatter(q2, s2)
-ax.set_xlabel("Mean Prices")
-ax.set_ylabel("Mean Volume")
+No_Obs =1500
+#q = Merged_Prices['low_price'].tail(No_Obs)
+#s = Merged_Prices['high_price'].tail(No_Obs)
+#q1 = Merged_Prices['Low_GM'].tail(No_Obs)
+#s1 = Merged_Prices['High_GM'].tail(No_Obs)
+q2 = Merged_Prices['Low_JP'].tail(No_Obs)
+s2 = Merged_Prices['High_JP'].tail(No_Obs)
+#ax.scatter(q, s, label='GameStop', alpha=0.5)
+#ax.scatter(q1, s1, label='Goldman', alpha=0.5, color='y')
+ax.scatter(q2, s2, label='JP Morgan', alpha=0.5)
+ax.set(title='Vol/Price Scatter plot', ylabel='high"', xlabel='Prices')
+plt.show()
+
+#5a
+f, ax = plt.subplots(figsize=(6, 6))
+sns.scatterplot(x=q2, y=s2, s=5, color=".15", label='JP Morgan')
+sns.histplot(x=q2, y=s2, bins=50, pthresh=.1, cmap="mako")
+sns.kdeplot(x=q2, y=s2, levels=5, color="w", linewidths=1)
+ax.set(title='Vol/Price Scatter plot', ylabel='high"', xlabel='Price')
+ax.legend(loc='best')
 plt.show()
 
 # Calculate volatility of Stocks
@@ -164,7 +219,7 @@ print(Merged_Prices.groupby('year')['tradeValue'].sum())
 print(Merged_Prices.groupby('year')['TradeValue_GM'].sum())
 print(Merged_Prices.groupby('year')['TradeValue_JP'].sum())
 
-
+#print(Merged_Prices['PercentChange_JP'])
 
 
 
