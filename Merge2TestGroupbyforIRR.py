@@ -5,6 +5,11 @@ import myCalcs as Cl
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.linear_model import LinearRegression
+from numpy import cov
+import quandl
+quandl.ApiConfig.api_key = "RVZ3KJWM4Q6RNVCJ"
+
+
 
 
 sns.set_theme(style="darkgrid")
@@ -182,6 +187,7 @@ r_sq=ln.score(X,Y)
 print('coefficient of determination:', r_sq)
 print('slope:', ln.coef_)
 
+
 #5a
 f, ax = plt.subplots(figsize=(6, 6))
 sns.scatterplot(x=q2, y=s2, s=5, color=".15", label='JP Morgan')
@@ -190,7 +196,6 @@ sns.kdeplot(x=q2, y=s2, levels=5, color="w", linewidths=1)
 ax.set(title='Vol/Price Scatter plot', ylabel='high"', xlabel='Price')
 ax.legend(loc='best')
 plt.show()
-
 
 
 # Calculate volatility of Stocks
@@ -205,6 +210,20 @@ print(f'Correlation: {Corr}')
 print(f'Volatility of GameStop Stock: {volatility_GS}')
 print(f'Volatility of Goldman Stock: {volatility_GM}')
 print(f'Volatility of JP Morgan Stock: {volatility_JP}')
+
+# calculate portfolio variance
+
+cov_matrix = cov(Merged_Prices['Prct_chg_pr_7d_GM'],Merged_Prices['Prct_chg_pr_7d_JP'])
+weights= np.array([0.5,0.5])
+port_variance = np.dot(weights.T,np.dot(cov_matrix,weights))
+GM_Std= Merged_Prices['Prct_chg_pr_7d_GM'].std()
+JP_Std= Merged_Prices['Prct_chg_pr_7d_JP'].std()
+port_variance_frmt = (str(np.round(port_variance, 3) * 100) + '%')
+print(f'Portfolio variance: {port_variance_frmt}')
+print(f'Portfolio Covariance: {cov_matrix}')
+print(f'GM Std: {GM_Std}')
+print(f'JP Std: {JP_Std}')
+
 
 #Group mean prices annually
 group_merged_prices = Merged_Prices.groupby('year')['Close_JP'].mean()
@@ -241,13 +260,7 @@ print(f'Stock Option return from 2006 to 2013: {round(clc2,2)}')
 
 
 
-print(Merged_Prices.groupby('year')['TotalValue'].sum())
-print(Merged_Prices.groupby('year')['tradeValue'].sum())
-print(Merged_Prices.groupby('year')['TradeValue_GM'].sum())
-print(Merged_Prices.groupby('year')['TradeValue_JP'].sum())
-
-#print(Merged_Prices['PercentChange_JP'])
 
 
-print(q2, s2)
+
 
