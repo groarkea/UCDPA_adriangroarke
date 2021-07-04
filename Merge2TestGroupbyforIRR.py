@@ -5,6 +5,8 @@ import myCalcs as Cl
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.linear_model import LinearRegression
+
+
 sns.set_theme(style="darkgrid")
 # Import/Read 3 stock price datasets
 GS = pd.read_csv("GME_stock.csv")  #Game stop prices'
@@ -179,6 +181,7 @@ plt.show()
 r_sq=ln.score(X,Y)
 print('coefficient of determination:', r_sq)
 print('slope:', ln.coef_)
+
 #5a
 f, ax = plt.subplots(figsize=(6, 6))
 sns.scatterplot(x=q2, y=s2, s=5, color=".15", label='JP Morgan')
