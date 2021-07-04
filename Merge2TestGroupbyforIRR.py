@@ -4,6 +4,7 @@ import numpy_financial as npf
 import myCalcs as Cl
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.linear_model import LinearRegression
 sns.set_theme(style="darkgrid")
 # Import/Read 3 stock price datasets
 GS = pd.read_csv("GME_stock.csv")  #Game stop prices'
@@ -155,6 +156,12 @@ s2 = Merged_Prices['High_JP'].tail(No_Obs)
 #ax.scatter(q1, s1, label='Goldman', alpha=0.5, color='y')
 ax.scatter(q2, s2, label='JP Morgan', alpha=0.5)
 ax.set(title='Vol/Price Scatter plot', ylabel='high"', xlabel='Prices')
+X = q2.values.reshape(-1, 1)
+Y = s2.values.reshape(-1, 1)
+linear_regressor = LinearRegression()
+linear_regressor.fit(X, Y)
+Y_pred = linear_regressor.predict(X)
+plt.plot(X, Y_pred, color='red')
 plt.show()
 
 #5a
@@ -165,6 +172,8 @@ sns.kdeplot(x=q2, y=s2, levels=5, color="w", linewidths=1)
 ax.set(title='Vol/Price Scatter plot', ylabel='high"', xlabel='Price')
 ax.legend(loc='best')
 plt.show()
+
+
 
 # Calculate volatility of Stocks
 volatility_GS =Merged_Prices['close_price'].std()
@@ -222,5 +231,5 @@ print(Merged_Prices.groupby('year')['TradeValue_JP'].sum())
 #print(Merged_Prices['PercentChange_JP'])
 
 
-
+print(q2, s2)
 
