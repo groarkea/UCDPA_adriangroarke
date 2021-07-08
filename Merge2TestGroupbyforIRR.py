@@ -6,9 +6,10 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.linear_model import LinearRegression
 from numpy import cov
-import quandl
-quandl.ApiConfig.api_key = "RVZ3KJWM4Q6RNVCJ"
-
+#import quandl
+import matplotlib.dates as mdates
+#.ApiConfig.api_key = "RVZ3KJWM4Q6RNVCJ"
+import matplotlib.ticker as ticker
 
 
 
@@ -25,6 +26,21 @@ print(JP.isna().sum())
 GS['year']= pd.DatetimeIndex(GS['date']).year
 GM['year']= pd.DatetimeIndex(GM['Date']).year
 JP['year']= pd.DatetimeIndex(JP['Date']).year
+
+GS['mth']= pd.DatetimeIndex(GS['date']).month
+GM['mth']= pd.DatetimeIndex(GM['Date']).month
+JP['mth']= pd.DatetimeIndex(JP['Date']).month
+print(JP['mth'])
+
+GS['yr_mth']= (GS['year'] & GS['mth'])
+GM['yr_mth']= (GM['year'] & GM['mth'])
+
+GS['yr_mth']= GS['year'].map(str) + '-' + GS['mth'].map(str)
+GM['yr_mth']= GM['year'].map(str) + '-' + GM['mth'].map(str)
+JP['yr_mth']= JP['year'].map(str) + '-' + JP['mth'].map(str)
+
+
+print(JP['yr_mth'])
 
 #Calculate trading volume value
 GS['tradeValue'] = Cl.Vol_by_Pr(GS['close_price'],GS['volume'])
@@ -68,6 +84,24 @@ print(Merged_Prices.describe)
 print(f'Columns of Merged prices are:{Merged_Prices.columns}')
 
 # Visualisation
+fig,ax = plt.subplots(2,1)
+fig.set_size_inches([5, 3])
+x = GS.groupby('year')['year'].max()
+x1 = GM.groupby('year')['year'].max()
+#x1 = GM.groupby('year')['year'].max()
+y= GS.groupby('year')['close_price'].mean()
+y1= GM.groupby('year')['Close'].mean()
+
+ax[0].plot(x,y, marker="v", linestyle="dotted", color="r", label='GameStop')
+ax[1].plot(x1,y1, marker="v", linestyle="--", color="b", label='Goldman Sachs')
+
+ax[0].set(title='Mean Price', ylabel='Price', xlabel='Year')
+
+ax[0].legend(loc='best')
+
+#fig.savefig("Stock_Prices.png")
+plt.show()
+
 # 1 line graph of prices
 fig,ax = plt.subplots()
 x = Merged_Prices.groupby('year')['year'].mean()
@@ -79,7 +113,8 @@ ax.plot(x,y1, marker="v", linestyle="--", color="b", label='Goldman Sachs')
 ax.plot(x,y2, marker="v", linestyle="--", color="g", label='JP Morgan')
 ax.set(title='Mean Price', ylabel='Price', xlabel='Year')
 ax.legend(loc='best')
-plt.show()
+fig.savefig("Stock_Prices.png")
+#plt.show()
 
 
 
@@ -96,7 +131,7 @@ ax.bar(i,j3, bottom=j1+j2, label='JP Morgan')
 ax.plot(i,h)
 ax.set(title='Total Trade Value Stacked', ylabel='Value in bns', xlabel='Year')
 ax.legend(loc='best')
-plt.show()
+#plt.show()
 
 #3 scatter plt all 3 close prices and volume
 fig, ax = plt.subplots()
@@ -125,7 +160,7 @@ ln1 = LinearRegression()
 ln1.fit(X1, Y1)
 Y_pred1 = ln1.predict(X1)
 plt.plot(X1, Y_pred1, color='red')
-plt.show()
+#plt.show()
 
 #3a seaborn plot of 1 stock price and volume (similar to above
 f, ax = plt.subplots(figsize=(6, 6))
@@ -134,7 +169,7 @@ sns.histplot(x=q2, y=s2, bins=50, pthresh=.1, cmap="mako")
 sns.kdeplot(x=q2, y=s2, levels=5, color="w", linewidths=1)
 ax.set(title='Vol/Price Scatter plot', ylabel='Volume"', xlabel='Price')
 ax.legend(loc='best')
-plt.show()
+#plt.show()
 
 #4a seaborn scatter plot Change in pr / change in volume
 No_Obs =1500
@@ -152,7 +187,7 @@ sns.histplot(x=q2, y=s2, bins=50, pthresh=.1, cmap="mako")
 sns.kdeplot(x=q2, y=s2, levels=5, color="w", linewidths=1)
 ax.set(title='6mth Percentage Change/Price Scatter plot', ylabel='Percentage Change Price"', xlabel='Percentage Change Volume')
 ax.legend(loc='best')
-plt.show()
+#plt.show()
 
 #4b  GM
 f, ax = plt.subplots(figsize=(6, 6))
@@ -161,7 +196,7 @@ sns.histplot(x=q1, y=s1, bins=50, pthresh=.1, cmap="mako")
 sns.kdeplot(x=q1, y=s1, levels=5, color="w", linewidths=1)
 ax.set(title='6mth Percentage Change/Price Scatter plot', ylabel='Percentage Change Price"', xlabel='Percentage Change Volume')
 ax.legend(loc='best')
-plt.show()
+#plt.show()
 
 # 5 scatter of high and low
 fig, ax = plt.subplots()
@@ -182,7 +217,7 @@ ln = LinearRegression()
 ln.fit(X, Y)
 Y_pred = ln.predict(X)
 plt.plot(X, Y_pred, color='red')
-plt.show()
+#plt.show()
 r_sq=ln.score(X,Y)
 print('coefficient of determination:', r_sq)
 print('slope:', ln.coef_)
@@ -195,7 +230,7 @@ sns.histplot(x=q2, y=s2, bins=50, pthresh=.1, cmap="mako")
 sns.kdeplot(x=q2, y=s2, levels=5, color="w", linewidths=1)
 ax.set(title='Vol/Price Scatter plot', ylabel='high"', xlabel='Price')
 ax.legend(loc='best')
-plt.show()
+#plt.show()
 
 
 # Calculate volatility of Stocks
