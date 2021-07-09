@@ -14,6 +14,7 @@ sns.set_theme(style="darkgrid")
 
 # Import/Read stock price datasets
 GS = pd.read_csv("Datasets/GME_stock.csv")  #Game stop prices'
+GS = GS.sort_values('date', ascending=True)
 GM = pd.read_csv("Datasets/GS.csv")  #Goldman Sachs prices
 JP = pd.read_csv("Datasets/JPM.csv")  #JPM prices
 AZ = pd.read_csv("Datasets/Amazon.com Inc.stock.csv")  #Amazon prices
@@ -53,8 +54,10 @@ MS.drop(columns=['High', 'Low', 'Open','Adj Close','Company'], axis=1, inplace=T
 
 GS.rename(columns={'date':'Date','close_price':'Close','volume':'Volume'}, inplace=True)
 print(f'Gamestop overview:{GS.head(3).transpose()}')
+print(f'FB overview:{FB.head(3).transpose()}')
 print(f'Columns of Gamestop are:{GS.columns}')
-
+# GS.sort_values('Date',ascending=False, inplace=True)
+print(f'Gamestop overview:{GS.head(3).transpose()}')
 #Calculate trading volume value
 GS['TradeValue'] = Cl.Vol_by_Pr(GS['Close'],GS['Volume'])
 GM['TradeValue'] = Cl.Vol_by_Pr(GM['Close'],GM['Volume'])
@@ -157,6 +160,26 @@ plt.show()
 
 
 # 1 line graph of prices
+
+ref_date = '2020-12-20'
+mask_dt = Merged_Prices1['Date'] > ref_date
+
+Merged_Prices_masked = Merged_Prices1.loc[mask_dt]
+print(Merged_Prices_masked['Close_GS'].tail())
+print(Merged_Prices_masked['Prct_chg_pr_7d_GS'].tail())
+
+fig,ax = plt.subplots()
+x0= Merged_Prices_masked['Date']
+print(x0)
+y0= Merged_Prices_masked['Prct_chg_pr_7d_GS']
+y1= Merged_Prices_masked['Prct_chg_pr_7d_FB']
+ax.plot(x0,y0, marker="v", linestyle="dotted",  label='GameStop')
+#ax.plot(x0,y1, marker="v", linestyle="dotted",  label='Facebook')
+ax.set(title='Mean Price', ylabel='Price', xlabel='Year')
+#ax.set_xticklabels(Merged_Prices_masked['Date'].index, rotation=90)
+ax.legend(loc='best')
+plt.show()
+
 fig,ax = plt.subplots()
 x = Merged_Prices1.groupby(['year'])['year'].max()
 y1= Merged_Prices1.groupby(['year'])['Prct_chg_pr_7d_GS'].mean()
