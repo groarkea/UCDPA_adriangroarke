@@ -15,9 +15,9 @@ import matplotlib.ticker as ticker
 
 sns.set_theme(style="darkgrid")
 # Import/Read 3 stock price datasets
-GS = pd.read_csv("GME_stock.csv")  #Game stop prices'
-GM = pd.read_csv("GS.csv")  #Goldman Sachs prices
-JP = pd.read_csv("JPM.csv")  #JPM prices
+GS = pd.read_csv("Datasets/GME_stock.csv")  #Game stop prices'
+GM = pd.read_csv("Datasets/GS.csv")  #Goldman Sachs prices
+JP = pd.read_csv("Datasets/JPM.csv")  #JPM prices
 
 # check null values
 print(JP.isna().sum())
