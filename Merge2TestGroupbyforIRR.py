@@ -49,9 +49,9 @@ AZ.drop(columns=['High', 'Low', 'Open','Adj Close','Company'], axis=1, inplace=T
 FB.drop(columns=['High', 'Low', 'Open','Adj Close','Company'], axis=1, inplace=True)
 MS.drop(columns=['High', 'Low', 'Open','Adj Close','Company'], axis=1, inplace=True)
 
-
 GS.rename(columns={'date':'Date','close_price':'Close','volume':'Volume'}, inplace=True)
-print(f'Columns of new Gamestop are:{GS.columns}')
+print(f'Gamestop overview:{GS.head(3).transpose()}')
+print(f'Columns of Gamestop are:{GS.columns}')
 
 #Calculate trading volume value
 GS['TradeValue'] = Cl.Vol_by_Pr(GS['Close'],GS['Volume'])
@@ -86,37 +86,26 @@ print(f'Columns of JP Morgan are:{JP.columns}')
 print(f'Shape of Microsoft is:{MS.shape}')
 print(f'Columns of Microsoft are:{MS.columns}')
 
-
-
-#Merage 3 data sets on date
-#Merged_Prices=GS.merge(GM, left_on='date', right_on='Date', suffixes=('_GS','_GM')) \
-#    .merge(JP, on='Date', suffixes=('_GM','_JP'))
-
-#Merged_Prices=GS.merge(GM, on='Date', suffixes=('_GS','_GM')) \
-#    .merge(JP, on='Date',suffixes=('_GM','_JP'))
-
+# Merge prices
 Merged_Prices= GS.merge(GM, on=['Date','year','mth','yr_mth'], suffixes=('_GS','_GM')) \
      .merge(JP, on=['Date','year','mth','yr_mth'], suffixes=('_GM','_JP')) \
      .merge(AZ, on=['Date','year','mth','yr_mth'], suffixes=('_JP','_AZ')) \
      .merge(FB, on=['Date','year','mth','yr_mth'], suffixes=('_AZ','_FB')) \
      .merge(MS, on=['Date','year','mth','yr_mth'], suffixes=('_FB','_MS'))
 
+
+# calculate total trading value across all 3 stocks
+Merged_Prices['TotalValue(Bn)'] = Cl.All_stocks_Value(Merged_Prices['TradeValue_GS'],Merged_Prices['TradeValue_GM'],Merged_Prices['TradeValue_JP'])
+a= Merged_Prices['TotalValue(Bn)'].sum()
+print(f'Total Trading value in billions is:{a}')
+
 #Describe Merged Prices
-print(f'Describe:{Merged_Prices.describe()}')
+print(f'Merged data overview:{Merged_Prices.transpose()}')
 print(f'Shape of Merged prices is:{Merged_Prices.shape}')
 print(f'Columns of Merged prices are:{Merged_Prices.columns}')
 
 # check null values
 print(Merged_Prices.isna().sum())
-
-# calculate total trading value across all 3 stocks
-Merged_Prices['TotalValue'] = Cl.All_stocks_Value(Merged_Prices['TradeValue_GS'],Merged_Prices['TradeValue_GM'],Merged_Prices['TradeValue_JP'])
-print(Merged_Prices['TotalValue'].head())
-a= Merged_Prices['TotalValue'].sum()
-print(f'Total Trading value is:{a}')
-print(Merged_Prices.shape)
-print(Merged_Prices.describe)
-print(f'Columns of Merged prices are:{Merged_Prices.columns}')
 
 # Visualisation
 fig,ax = plt.subplots(3,1)
@@ -157,7 +146,7 @@ fig.savefig("Stock_Prices.png")
 #2 bar graph of trade value
 fig,ax = plt.subplots()
 i = Merged_Prices.groupby('year')['year'].max()
-h= Merged_Prices.groupby('year')['TotalValue'].sum()
+h= Merged_Prices.groupby('year')['TotalValue(Bn)'].sum()
 j1= Merged_Prices.groupby('year')['TradeValue_GS'].sum()
 j2= Merged_Prices.groupby('year')['TradeValue_GM'].sum()
 j3= Merged_Prices.groupby('year')['TradeValue_JP'].sum()
