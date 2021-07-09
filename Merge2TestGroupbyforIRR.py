@@ -1,3 +1,5 @@
+import datetime
+
 import pandas as pd
 import numpy as np
 import numpy_financial as npf
@@ -16,7 +18,7 @@ GM = pd.read_csv("Datasets/GS.csv")  #Goldman Sachs prices
 JP = pd.read_csv("Datasets/JPM.csv")  #JPM prices
 AZ = pd.read_csv("Datasets/Amazon.com Inc.stock.csv")  #Amazon prices
 FB = pd.read_csv("Datasets/Facebook Inc.stock.csv")  #Facebook prices
-MS = pd.read_csv("Datasets/Facebook Inc.stock.csv")  #Microsoft prices
+MS = pd.read_csv("Datasets/Microsoft Corporationstock.csv")  #Microsoft prices
 
 # Add year, month and year-month columns to dataset based on pricing date
 GS['year']= pd.DatetimeIndex(GS['date']).year
@@ -63,12 +65,16 @@ MS['TradeValue'] = Cl.Vol_by_Pr(MS['Close'],MS['Volume'])
 
 # Calculate 7 day percentage change for all stocks for price and volume
 
-GS['Prct_chg_pr_7d'] = GS['Close'].pct_change(periods=7).fillna(float(0))
-GM['Prct_chg_pr_7d'] = GM['Close'].pct_change(periods=7).fillna(float(0))
-JP['Prct_chg_pr_7d'] = JP['Close'].pct_change(periods=7).fillna(float(0))
-AZ['Prct_chg_pr_7d'] = AZ['Close'].pct_change(periods=7).fillna(float(0))
-FB['Prct_chg_pr_7d'] = FB['Close'].pct_change(periods=7).fillna(float(0))
-MS['Prct_chg_pr_7d'] = MS['Close'].pct_change(periods=7).fillna(float(0))
+GS['Prct_chg_pr_7d'] = GS['Close'].pct_change(periods=-1).fillna(float(0)) # period set to minus 1 to ensure the % chg is based on the date before
+GM['Prct_chg_pr_7d'] = GM['Close'].pct_change(periods=1).fillna(float(0)) # period set to minus 1 to ensure the % chg is based on the date before
+JP['Prct_chg_pr_7d'] = JP['Close'].pct_change(periods=1).fillna(float(0)) # period set to minus 1 to ensure the % chg is based on the date before
+AZ['Prct_chg_pr_7d'] = AZ['Close'].pct_change(periods=1).fillna(float(0)) # period set to minus 1 to ensure the % chg is based on the date before
+FB['Prct_chg_pr_7d'] = FB['Close'].pct_change(periods=1).fillna(float(0)) # period set to plus 1 to ensure the % chg is based on the date before
+MS['Prct_chg_pr_7d'] = MS['Close'].pct_change(periods=1).fillna(float(0)) # period set to plus 1 to ensure the % chg is based on the date before
+
+
+print(GS.loc[7:10].transpose())
+print(GM.loc[7:10].transpose())
 
 GS['Prct_chg_vol_7d'] = GS['Volume'].pct_change(periods=7).fillna(float(0))
 GM['Prct_chg_vol_7d'] = GM['Volume'].pct_change(periods=7).fillna(float(0))
@@ -93,6 +99,10 @@ Merged_Prices= GS.merge(GM, on=['Date','year','mth','yr_mth'], suffixes=('_GS','
      .merge(FB, on=['Date','year','mth','yr_mth'], suffixes=('_AZ','_FB')) \
      .merge(MS, on=['Date','year','mth','yr_mth'], suffixes=('_FB','_MS'))
 
+Merged_Prices1= GS.merge(FB, on=['Date','year','mth','yr_mth'], suffixes=('_GS','')) \
+     .merge(MS, on=['Date','year','mth','yr_mth'], suffixes=('_FB','_MS'))
+
+print(Merged_Prices1.transpose())
 
 # calculate total trading value across all 3 stocks
 Merged_Prices['TotalValue(Bn)'] = Cl.All_stocks_Value(Merged_Prices['TradeValue_GS'],Merged_Prices['TradeValue_GM'],Merged_Prices['TradeValue_JP'])
@@ -103,43 +113,63 @@ print(f'Total Trading value in billions is:{a}')
 print(f'Merged data overview:{Merged_Prices.transpose()}')
 print(f'Shape of Merged prices is:{Merged_Prices.shape}')
 print(f'Columns of Merged prices are:{Merged_Prices.columns}')
-
+print(f'Columns of Merged prices1 are:{Merged_Prices1.columns}')
 # check null values
 print(Merged_Prices.isna().sum())
 
-# Visualisation
-fig,ax = plt.subplots(3,1)
-fig.set_size_inches([5, 6])
-x = GS.groupby('year')['year'].max()
-x1 = GM.groupby('year')['year'].max()
-x2 = JP.groupby('year')['year'].max()
+# Visualisations
+fig,ax = plt.subplots(3,2, sharex=True)
+fig.set_size_inches([10, 6])
+fig.suptitle('Historical average Prices', fontsize=16)
+
+x = GS.groupby('year')['year'].median()
+x1 = GM.groupby('year')['year'].median()
+x2 = JP.groupby('year')['year'].median()
+x3 = AZ.groupby('year')['year'].median()
+x4 = FB.groupby('year')['year'].median()
+x5 = MS.groupby('year')['year'].median()
 y= GS.groupby('year')['Close'].mean()
 y1= GM.groupby('year')['Close'].mean()
 y2= JP.groupby('year')['Close'].mean()
-ax[0].plot(x,y, marker="v", linestyle="dotted", color="r", label='GameStop')
-ax[1].plot(x1,y1, marker="v", linestyle="--", color="b", label='Goldman Sachs')
-ax[2].plot(x2,y2, marker="v", linestyle="--", color="b", label='JP Morgan')
+y3= AZ.groupby('year')['Close'].mean()
+y4= FB.groupby('year')['Close'].mean()
+y5= MS.groupby('year')['Close'].mean()
 
-ax[0].set(title='Mean Price', ylabel='Price', xlabel='Year')
 
-ax[0].legend(loc='best')
+ax[0,0].plot(x,y, marker="v", linestyle="dotted", color="r", label='GameStop')
+ax[1,0].plot(x1,y1, marker="v", linestyle="--", color="b", label='Goldman Sachs')
+ax[2,0].plot(x2,y2, marker="v", linestyle="--", color="b", label='JP Morgan')
+ax[0,1].plot(x3,y3, marker="v", linestyle="--", color="b", label='Amazon')
+ax[1,1].plot(x4,y4, marker="v", linestyle="--", color="b", label='Facebook')
+ax[2,1].plot(x5,y5, marker="v", linestyle="--", color="b", label='Microsoft')
 
+ax[0,0].set( ylabel='Price')
+ax[2,1].set(xlabel='Year')
+
+ax[0,0].legend(loc='upper left')
+ax[1,0].legend(loc='upper left')
+ax[2,0].legend(loc='best')
+ax[0,1].legend(loc='best')
+ax[1,1].legend(loc='best')
+ax[2,1].legend(loc='best')
 #fig.savefig("Stock_Prices.png")
 plt.show()
 
+
 # 1 line graph of prices
 fig,ax = plt.subplots()
-x = Merged_Prices.groupby('year')['year'].mean()
-y= Merged_Prices.groupby('year')['Close_GS'].mean()
-y1= Merged_Prices.groupby('year')['Close_GM'].mean()
-y2= Merged_Prices.groupby('year')['Close_JP'].mean()
-ax.plot(x,y, marker="v", linestyle="dotted", color="r", label='GameStop')
-ax.plot(x,y1, marker="v", linestyle="--", color="b", label='Goldman Sachs')
-ax.plot(x,y2, marker="v", linestyle="--", color="g", label='JP Morgan')
+x = Merged_Prices1.groupby(['year'])['year'].max()
+y1= Merged_Prices1.groupby(['year'])['Prct_chg_pr_7d_GS'].mean()
+y2= Merged_Prices1.groupby(['year'])['Prct_chg_pr_7d_FB'].mean()
+y3= Merged_Prices1.groupby(['year'])['Prct_chg_pr_7d_MS'].mean()
+
+ax.plot(x,y1, marker="v", linestyle="dotted",  label='GameStop')
+ax.plot(x,y2, marker="v", linestyle="--", label='Facebook')
+ax.plot(x,y3, marker="v", linestyle="--", label='Micrcosoft')
 ax.set(title='Mean Price', ylabel='Price', xlabel='Year')
 ax.legend(loc='best')
-fig.savefig("Stock_Prices.png")
-#plt.show()
+#fig.savefig("Stock_Prices.png")
+plt.show()
 
 
 
