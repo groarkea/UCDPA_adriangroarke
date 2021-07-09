@@ -84,16 +84,17 @@ print(Merged_Prices.describe)
 print(f'Columns of Merged prices are:{Merged_Prices.columns}')
 
 # Visualisation
-fig,ax = plt.subplots(2,1)
-fig.set_size_inches([5, 3])
+fig,ax = plt.subplots(3,1)
+fig.set_size_inches([5, 6])
 x = GS.groupby('year')['year'].max()
 x1 = GM.groupby('year')['year'].max()
-#x1 = GM.groupby('year')['year'].max()
+x2 = JP.groupby('year')['year'].max()
 y= GS.groupby('year')['close_price'].mean()
 y1= GM.groupby('year')['Close'].mean()
-
+y2= JP.groupby('year')['Close'].mean()
 ax[0].plot(x,y, marker="v", linestyle="dotted", color="r", label='GameStop')
 ax[1].plot(x1,y1, marker="v", linestyle="--", color="b", label='Goldman Sachs')
+ax[2].plot(x2,y2, marker="v", linestyle="--", color="b", label='JP Morgan')
 
 ax[0].set(title='Mean Price', ylabel='Price', xlabel='Year')
 
