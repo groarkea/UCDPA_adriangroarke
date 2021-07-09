@@ -56,8 +56,8 @@ GS.rename(columns={'date':'Date','close_price':'Close','volume':'Volume'}, inpla
 print(f'Gamestop overview:{GS.head(3).transpose()}')
 print(f'FB overview:{FB.head(3).transpose()}')
 print(f'Columns of Gamestop are:{GS.columns}')
-# GS.sort_values('Date',ascending=False, inplace=True)
-print(f'Gamestop overview:{GS.head(3).transpose()}')
+
+
 #Calculate trading volume value
 GS['TradeValue'] = Cl.Vol_by_Pr(GS['Close'],GS['Volume'])
 GM['TradeValue'] = Cl.Vol_by_Pr(GM['Close'],GM['Volume'])
@@ -68,16 +68,17 @@ MS['TradeValue'] = Cl.Vol_by_Pr(MS['Close'],MS['Volume'])
 
 # Calculate 7 day percentage change for all stocks for price and volume
 
-GS['Prct_chg_pr_7d'] = GS['Close'].pct_change(periods=-1).fillna(float(0)) # period set to minus 1 to ensure the % chg is based on the date before
-GM['Prct_chg_pr_7d'] = GM['Close'].pct_change(periods=1).fillna(float(0)) # period set to minus 1 to ensure the % chg is based on the date before
-JP['Prct_chg_pr_7d'] = JP['Close'].pct_change(periods=1).fillna(float(0)) # period set to minus 1 to ensure the % chg is based on the date before
-AZ['Prct_chg_pr_7d'] = AZ['Close'].pct_change(periods=1).fillna(float(0)) # period set to minus 1 to ensure the % chg is based on the date before
-FB['Prct_chg_pr_7d'] = FB['Close'].pct_change(periods=1).fillna(float(0)) # period set to plus 1 to ensure the % chg is based on the date before
-MS['Prct_chg_pr_7d'] = MS['Close'].pct_change(periods=1).fillna(float(0)) # period set to plus 1 to ensure the % chg is based on the date before
+GS['Prct_chg_pr_7d'] = GS['Close'].pct_change(periods=1).fillna(float(0)) # check not -1 for preceeding day
+GM['Prct_chg_pr_7d'] = GM['Close'].pct_change(periods=1).fillna(float(0))
+JP['Prct_chg_pr_7d'] = JP['Close'].pct_change(periods=1).fillna(float(0))
+AZ['Prct_chg_pr_7d'] = AZ['Close'].pct_change(periods=1).fillna(float(0))
+FB['Prct_chg_pr_7d'] = FB['Close'].pct_change(periods=1).fillna(float(0))
+MS['Prct_chg_pr_7d'] = MS['Close'].pct_change(periods=1).fillna(float(0))
 
 
-print(GS.loc[7:10].transpose())
+print(GS.loc[10:7].transpose())
 print(GM.loc[7:10].transpose())
+print(FB.loc[2177:2181].transpose())
 
 GS['Prct_chg_vol_7d'] = GS['Volume'].pct_change(periods=7).fillna(float(0))
 GM['Prct_chg_vol_7d'] = GM['Volume'].pct_change(periods=7).fillna(float(0))
@@ -161,7 +162,7 @@ plt.show()
 
 # 1 line graph of prices
 
-ref_date = '2020-12-20'
+ref_date = '2021-01-12'
 mask_dt = Merged_Prices1['Date'] > ref_date
 
 Merged_Prices_masked = Merged_Prices1.loc[mask_dt]
@@ -174,6 +175,7 @@ print(x0)
 y0= Merged_Prices_masked['Prct_chg_pr_7d_GS']
 y1= Merged_Prices_masked['Prct_chg_pr_7d_FB']
 ax.plot(x0,y0, marker="v", linestyle="dotted",  label='GameStop')
+ax.plot(x0,y1, marker="v", linestyle="dotted",  label='FB')
 #ax.plot(x0,y1, marker="v", linestyle="dotted",  label='Facebook')
 ax.set(title='Mean Price', ylabel='Price', xlabel='Year')
 #ax.set_xticklabels(Merged_Prices_masked['Date'].index, rotation=90)
