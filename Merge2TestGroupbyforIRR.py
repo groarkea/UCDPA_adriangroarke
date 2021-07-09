@@ -6,76 +6,111 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.linear_model import LinearRegression
 from numpy import cov
-#import quandl
-import matplotlib.dates as mdates
-#.ApiConfig.api_key = "RVZ3KJWM4Q6RNVCJ"
-import matplotlib.ticker as ticker
 
-
-
+# Graph Theme
 sns.set_theme(style="darkgrid")
-# Import/Read 3 stock price datasets
+
+# Import/Read stock price datasets
 GS = pd.read_csv("Datasets/GME_stock.csv")  #Game stop prices'
 GM = pd.read_csv("Datasets/GS.csv")  #Goldman Sachs prices
 JP = pd.read_csv("Datasets/JPM.csv")  #JPM prices
+AZ = pd.read_csv("Datasets/Amazon.com Inc.stock.csv")  #Amazon prices
+FB = pd.read_csv("Datasets/Facebook Inc.stock.csv")  #Facebook prices
+MS = pd.read_csv("Datasets/Facebook Inc.stock.csv")  #Microsoft prices
 
-# check null values
-print(JP.isna().sum())
-
-# Add year column to dataset based on pricing date
+# Add year, month and year-month columns to dataset based on pricing date
 GS['year']= pd.DatetimeIndex(GS['date']).year
 GM['year']= pd.DatetimeIndex(GM['Date']).year
 JP['year']= pd.DatetimeIndex(JP['Date']).year
+AZ['year']= pd.DatetimeIndex(AZ['Date']).year
+FB['year']= pd.DatetimeIndex(FB['Date']).year
+MS['year']= pd.DatetimeIndex(MS['Date']).year
 
 GS['mth']= pd.DatetimeIndex(GS['date']).month
 GM['mth']= pd.DatetimeIndex(GM['Date']).month
 JP['mth']= pd.DatetimeIndex(JP['Date']).month
-print(JP['mth'])
+AZ['mth']= pd.DatetimeIndex(AZ['Date']).month
+FB['mth']= pd.DatetimeIndex(FB['Date']).month
+MS['mth']= pd.DatetimeIndex(MS['Date']).month
 
-GS['yr_mth']= (GS['year'] & GS['mth'])
-GM['yr_mth']= (GM['year'] & GM['mth'])
 
 GS['yr_mth']= GS['year'].map(str) + '-' + GS['mth'].map(str)
 GM['yr_mth']= GM['year'].map(str) + '-' + GM['mth'].map(str)
 JP['yr_mth']= JP['year'].map(str) + '-' + JP['mth'].map(str)
+AZ['yr_mth']= AZ['year'].map(str) + '-' + AZ['mth'].map(str)
+FB['yr_mth']= FB['year'].map(str) + '-' + FB['mth'].map(str)
+MS['yr_mth']= MS['year'].map(str) + '-' + MS['mth'].map(str)
+
+#drop unwanted columns
+GS.drop(columns=['open_price', 'high_price', 'low_price','adjclose_price'], axis=1, inplace=True)
+GM.drop(columns=['High', 'Low', 'Open','Adj Close'], axis=1, inplace=True)
+JP.drop(columns=['High', 'Low', 'Open','Adj Close'], axis=1, inplace=True)
+AZ.drop(columns=['High', 'Low', 'Open','Adj Close','Company'], axis=1, inplace=True)
+FB.drop(columns=['High', 'Low', 'Open','Adj Close','Company'], axis=1, inplace=True)
+MS.drop(columns=['High', 'Low', 'Open','Adj Close','Company'], axis=1, inplace=True)
 
 
-print(JP['yr_mth'])
+GS.rename(columns={'date':'Date','close_price':'Close','volume':'Volume'}, inplace=True)
+print(f'Columns of new Gamestop are:{GS.columns}')
 
 #Calculate trading volume value
-GS['tradeValue'] = Cl.Vol_by_Pr(GS['close_price'],GS['volume'])
+GS['TradeValue'] = Cl.Vol_by_Pr(GS['Close'],GS['Volume'])
 GM['TradeValue'] = Cl.Vol_by_Pr(GM['Close'],GM['Volume'])
 JP['TradeValue'] = Cl.Vol_by_Pr(JP['Close'],JP['Volume'])
+AZ['TradeValue'] = Cl.Vol_by_Pr(AZ['Close'],AZ['Volume'])
+FB['TradeValue'] = Cl.Vol_by_Pr(FB['Close'],FB['Volume'])
+MS['TradeValue'] = Cl.Vol_by_Pr(MS['Close'],MS['Volume'])
 
-# Calculate percentage change for all 3 stocks
+# Calculate 7 day percentage change for all stocks for price and volume
 
-GS['prct_chg_pr_7d'] = GS['close_price'].pct_change(periods=7).fillna(float(0))
+GS['Prct_chg_pr_7d'] = GS['Close'].pct_change(periods=7).fillna(float(0))
 GM['Prct_chg_pr_7d'] = GM['Close'].pct_change(periods=7).fillna(float(0))
 JP['Prct_chg_pr_7d'] = JP['Close'].pct_change(periods=7).fillna(float(0))
+AZ['Prct_chg_pr_7d'] = AZ['Close'].pct_change(periods=7).fillna(float(0))
+FB['Prct_chg_pr_7d'] = FB['Close'].pct_change(periods=7).fillna(float(0))
+MS['Prct_chg_pr_7d'] = MS['Close'].pct_change(periods=7).fillna(float(0))
 
-GS['prct_chg_vol_7d'] = GS['volume'].pct_change(periods=7).fillna(float(0))
+GS['Prct_chg_vol_7d'] = GS['Volume'].pct_change(periods=7).fillna(float(0))
 GM['Prct_chg_vol_7d'] = GM['Volume'].pct_change(periods=7).fillna(float(0))
 JP['Prct_chg_vol_7d'] = JP['Volume'].pct_change(periods=7).fillna(float(0))
+AZ['Prct_chg_vol_7d'] = AZ['Volume'].pct_change(periods=7).fillna(float(0))
+FB['Prct_chg_vol_7d'] = FB['Volume'].pct_change(periods=7).fillna(float(0))
+MS['Prct_chg_vol_7d'] = MS['Volume'].pct_change(periods=7).fillna(float(0))
 
-# describe shape and column of individual datasets
+
+# describe shape and column of individual datasets (Gamestop, JP Morgan, Microsoft
 print(f'Shape of Gamestop is:{GS.shape}')
-print(f'Columns of Gamestop is:{GS.columns}')
+print(f'Columns of Gamestop are:{GS.columns}')
 print(f'Shape of JP Morgan is:{JP.shape}')
 print(f'Columns of JP Morgan are:{JP.columns}')
+print(f'Shape of Microsoft is:{MS.shape}')
+print(f'Columns of Microsoft are:{MS.columns}')
+
+
 
 #Merage 3 data sets on date
-Merged_Prices= GS.merge(GM, left_on='date', right_on='Date', suffixes=('_GS','_GM')) \
-    .merge(JP, on='Date', suffixes=('_GM','_JP'))
+#Merged_Prices=GS.merge(GM, left_on='date', right_on='Date', suffixes=('_GS','_GM')) \
+#    .merge(JP, on='Date', suffixes=('_GM','_JP'))
 
-print(Merged_Prices.isna().sum())
+#Merged_Prices=GS.merge(GM, on='Date', suffixes=('_GS','_GM')) \
+#    .merge(JP, on='Date',suffixes=('_GM','_JP'))
+
+Merged_Prices= GS.merge(GM, on=['Date','year','mth','yr_mth'], suffixes=('_GS','_GM')) \
+     .merge(JP, on=['Date','year','mth','yr_mth'], suffixes=('_GM','_JP')) \
+     .merge(AZ, on=['Date','year','mth','yr_mth'], suffixes=('_JP','_AZ')) \
+     .merge(FB, on=['Date','year','mth','yr_mth'], suffixes=('_AZ','_FB')) \
+     .merge(MS, on=['Date','year','mth','yr_mth'], suffixes=('_FB','_MS'))
 
 #Describe Merged Prices
-print(f'Describe:{Merged_Prices}')
+print(f'Describe:{Merged_Prices.describe()}')
 print(f'Shape of Merged prices is:{Merged_Prices.shape}')
 print(f'Columns of Merged prices are:{Merged_Prices.columns}')
 
+# check null values
+print(Merged_Prices.isna().sum())
+
 # calculate total trading value across all 3 stocks
-Merged_Prices['TotalValue'] = Cl.All_stocks_Value(Merged_Prices['tradeValue'],Merged_Prices['TradeValue_GM'],Merged_Prices['TradeValue_JP'])
+Merged_Prices['TotalValue'] = Cl.All_stocks_Value(Merged_Prices['TradeValue_GS'],Merged_Prices['TradeValue_GM'],Merged_Prices['TradeValue_JP'])
 print(Merged_Prices['TotalValue'].head())
 a= Merged_Prices['TotalValue'].sum()
 print(f'Total Trading value is:{a}')
@@ -89,7 +124,7 @@ fig.set_size_inches([5, 6])
 x = GS.groupby('year')['year'].max()
 x1 = GM.groupby('year')['year'].max()
 x2 = JP.groupby('year')['year'].max()
-y= GS.groupby('year')['close_price'].mean()
+y= GS.groupby('year')['Close'].mean()
 y1= GM.groupby('year')['Close'].mean()
 y2= JP.groupby('year')['Close'].mean()
 ax[0].plot(x,y, marker="v", linestyle="dotted", color="r", label='GameStop')
@@ -106,7 +141,7 @@ plt.show()
 # 1 line graph of prices
 fig,ax = plt.subplots()
 x = Merged_Prices.groupby('year')['year'].mean()
-y= Merged_Prices.groupby('year')['close_price'].mean()
+y= Merged_Prices.groupby('year')['Close_GS'].mean()
 y1= Merged_Prices.groupby('year')['Close_GM'].mean()
 y2= Merged_Prices.groupby('year')['Close_JP'].mean()
 ax.plot(x,y, marker="v", linestyle="dotted", color="r", label='GameStop')
@@ -123,7 +158,7 @@ fig.savefig("Stock_Prices.png")
 fig,ax = plt.subplots()
 i = Merged_Prices.groupby('year')['year'].max()
 h= Merged_Prices.groupby('year')['TotalValue'].sum()
-j1= Merged_Prices.groupby('year')['tradeValue'].sum()
+j1= Merged_Prices.groupby('year')['TradeValue_GS'].sum()
 j2= Merged_Prices.groupby('year')['TradeValue_GM'].sum()
 j3= Merged_Prices.groupby('year')['TradeValue_JP'].sum()
 ax.bar(i,j1, label="GameStop")
@@ -174,8 +209,8 @@ ax.legend(loc='best')
 
 #4a seaborn scatter plot Change in pr / change in volume
 No_Obs =1500
-q = Merged_Prices['prct_chg_pr_7d'].tail(No_Obs)
-s = Merged_Prices['prct_chg_vol_7d'].tail(No_Obs)
+q = Merged_Prices['Prct_chg_pr_7d_GS'].tail(No_Obs)
+s = Merged_Prices['Prct_chg_vol_7d_GS'].tail(No_Obs)
 q1 = Merged_Prices['Prct_chg_pr_7d_GM'].tail(No_Obs)
 s1 = Merged_Prices['Prct_chg_vol_7d_GM'].tail(No_Obs)
 q2 = Merged_Prices['Prct_chg_pr_7d_JP'].tail(No_Obs)
@@ -206,8 +241,8 @@ No_Obs =1500
 #s = Merged_Prices['high_price'].tail(No_Obs)
 #q1 = Merged_Prices['Low_GM'].tail(No_Obs)
 #s1 = Merged_Prices['High_GM'].tail(No_Obs)
-q2 = Merged_Prices['Low_JP'].tail(No_Obs)
-s2 = Merged_Prices['High_JP'].tail(No_Obs)
+q2 = Merged_Prices['Close_JP'].tail(No_Obs)
+s2 = Merged_Prices['Close_MS'].tail(No_Obs)
 #ax.scatter(q, s, label='GameStop', alpha=0.5)
 #ax.scatter(q1, s1, label='Goldman', alpha=0.5, color='y')
 ax.scatter(q2, s2, label='JP Morgan', alpha=0.5)
@@ -235,10 +270,10 @@ ax.legend(loc='best')
 
 
 # Calculate volatility of Stocks
-volatility_GS =Merged_Prices['close_price'].std()
+volatility_GS =Merged_Prices['Close_GS'].std()
 volatility_GM = Merged_Prices['Close_GM'].std()
 volatility_JP = Merged_Prices['Close_JP'].std()
-x = np.array(Merged_Prices['close_price'],Merged_Prices['Close_GM'])
+x = np.array(Merged_Prices['Close_GS'],Merged_Prices['Close_GM'])
 CoVar = np.cov(x)
 Corr = np.corrcoef(x)
 print(f'Covariance: {CoVar}')
