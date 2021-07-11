@@ -3,6 +3,8 @@ import datetime
 import pandas as pd
 import numpy as np
 import numpy_financial as npf
+from matplotlib.dates import DateFormatter
+
 import myCalcs as Cl
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -68,11 +70,11 @@ MS['TradeValue'] = Cl.Vol_by_Pr(MS['Close'],MS['Volume'])
 
 # Calculate 7 day percentage change for all stocks for price and volume
 
-GS['Prct_chg_pr_7d'] = GS['Close'].pct_change(periods=1).fillna(float(0)) # check not -1 for preceeding day
+GS['Prct_chg_pr_7d'] = GS['Close'].pct_change(periods=7).fillna(float(0)) # check not -1 for preceeding day
 GM['Prct_chg_pr_7d'] = GM['Close'].pct_change(periods=1).fillna(float(0))
 JP['Prct_chg_pr_7d'] = JP['Close'].pct_change(periods=1).fillna(float(0))
 AZ['Prct_chg_pr_7d'] = AZ['Close'].pct_change(periods=1).fillna(float(0))
-FB['Prct_chg_pr_7d'] = FB['Close'].pct_change(periods=1).fillna(float(0))
+FB['Prct_chg_pr_7d'] = FB['Close'].pct_change(periods=7).fillna(float(0))
 MS['Prct_chg_pr_7d'] = MS['Close'].pct_change(periods=1).fillna(float(0))
 
 
@@ -103,13 +105,16 @@ Merged_Prices= GS.merge(GM, on=['Date','year','mth','yr_mth'], suffixes=('_GS','
      .merge(FB, on=['Date','year','mth','yr_mth'], suffixes=('_AZ','_FB')) \
      .merge(MS, on=['Date','year','mth','yr_mth'], suffixes=('_FB','_MS'))
 
-Merged_Prices1= GS.merge(FB, on=['Date','year','mth','yr_mth'], suffixes=('_GS','')) \
-     .merge(MS, on=['Date','year','mth','yr_mth'], suffixes=('_FB','_MS'))
-
+Merged_Prices1= GS.merge(FB, on=['Date','year','mth','yr_mth'], suffixes=('_GS','_FB')) \
+     .merge(MS, on=['Date','year','mth','yr_mth'], suffixes=('_FB','_MS')) \
+     .merge(AZ, on=['Date','year','mth','yr_mth'], suffixes=('_MS','_AZ'))
 print(Merged_Prices1.transpose())
 
 # calculate total trading value across all 3 stocks
-Merged_Prices['TotalValue(Bn)'] = Cl.All_stocks_Value(Merged_Prices['TradeValue_GS'],Merged_Prices['TradeValue_GM'],Merged_Prices['TradeValue_JP'])
+Merged_Prices['TotalValue(Bn)'] = Cl.All_stocks_Value(Merged_Prices['TradeValue_GS'],\
+                                                      Merged_Prices['TradeValue_GM'],Merged_Prices['TradeValue_JP'],\
+                                                      Merged_Prices['TradeValue_AZ'],Merged_Prices['TradeValue_FB'],\
+                                                      Merged_Prices['TradeValue_MS'])
 a= Merged_Prices['TotalValue(Bn)'].sum()
 print(f'Total Trading value in billions is:{a}')
 
@@ -162,7 +167,7 @@ plt.show()
 
 # 1 line graph of prices
 
-ref_date = '2021-01-12'
+ref_date = '2020-11-30'
 mask_dt = Merged_Prices1['Date'] > ref_date
 
 Merged_Prices_masked = Merged_Prices1.loc[mask_dt]
@@ -170,31 +175,25 @@ print(Merged_Prices_masked['Close_GS'].tail())
 print(Merged_Prices_masked['Prct_chg_pr_7d_GS'].tail())
 
 fig,ax = plt.subplots()
+fig.set_size_inches([8, 5])
 x0= Merged_Prices_masked['Date']
-print(x0)
 y0= Merged_Prices_masked['Prct_chg_pr_7d_GS']
 y1= Merged_Prices_masked['Prct_chg_pr_7d_FB']
+y2= Merged_Prices_masked['Prct_chg_pr_7d_MS']
+y3= Merged_Prices_masked['Prct_chg_pr_7d_AZ']
 ax.plot(x0,y0, marker="v", linestyle="dotted",  label='GameStop')
-ax.plot(x0,y1, marker="v", linestyle="dotted",  label='FB')
-#ax.plot(x0,y1, marker="v", linestyle="dotted",  label='Facebook')
-ax.set(title='Mean Price', ylabel='Price', xlabel='Year')
-#ax.set_xticklabels(Merged_Prices_masked['Date'].index, rotation=90)
-ax.legend(loc='best')
-plt.show()
-
-fig,ax = plt.subplots()
-x = Merged_Prices1.groupby(['year'])['year'].max()
-y1= Merged_Prices1.groupby(['year'])['Prct_chg_pr_7d_GS'].mean()
-y2= Merged_Prices1.groupby(['year'])['Prct_chg_pr_7d_FB'].mean()
-y3= Merged_Prices1.groupby(['year'])['Prct_chg_pr_7d_MS'].mean()
-
-ax.plot(x,y1, marker="v", linestyle="dotted",  label='GameStop')
-ax.plot(x,y2, marker="v", linestyle="--", label='Facebook')
-ax.plot(x,y3, marker="v", linestyle="--", label='Micrcosoft')
-ax.set(title='Mean Price', ylabel='Price', xlabel='Year')
+ax.plot(x0,y1, marker="v", linestyle="dotted",  label='Facebook')
+ax.plot(x0,y2, marker="v", linestyle="dotted",  label='Microsoft')
+ax.plot(x0,y3, marker="v", linestyle="dotted",  label='Amazon')
+ax.set(title='7 day percentage price change', ylabel='Price', xlabel='Date')
+ax.set_xticklabels(x0, rotation=90, size=12)
 ax.legend(loc='best')
 #fig.savefig("Stock_Prices.png")
 plt.show()
+
+
+
+
 
 
 
@@ -205,42 +204,65 @@ h= Merged_Prices.groupby('year')['TotalValue(Bn)'].sum()
 j1= Merged_Prices.groupby('year')['TradeValue_GS'].sum()
 j2= Merged_Prices.groupby('year')['TradeValue_GM'].sum()
 j3= Merged_Prices.groupby('year')['TradeValue_JP'].sum()
+j4= Merged_Prices.groupby('year')['TradeValue_AZ'].sum()
+j5= Merged_Prices.groupby('year')['TradeValue_FB'].sum()
+j6= Merged_Prices.groupby('year')['TradeValue_MS'].sum()
 ax.bar(i,j1, label="GameStop")
 ax.bar(i,j2, bottom=j1, label='Goldman Sachs')
 ax.bar(i,j3, bottom=j1+j2, label='JP Morgan')
+ax.bar(i,j4, bottom=j1+j2+j3, label='Amazon')
+ax.bar(i,j5, bottom=j1+j2+j3+j4, label='Facebook')
+ax.bar(i,j6, bottom=j1+j2+j3+j4+j5, label='Microsoft')
 ax.plot(i,h)
 ax.set(title='Total Trade Value Stacked', ylabel='Value in bns', xlabel='Year')
 ax.legend(loc='best')
-#plt.show()
+plt.show()
 
 #3 scatter plt all 3 close prices and volume
-fig, ax = plt.subplots()
-No_Obs =1500
-#q = Merged_Prices['close_price'].tail(No_Obs)
-#s = Merged_Prices['volume'].tail(No_Obs)
-q1 = Merged_Prices['Close_GM'].tail(No_Obs)
-s1 = Merged_Prices['Volume_GM'].tail(No_Obs)
-q2 = Merged_Prices['Close_JP'].tail(No_Obs)
-s2 = Merged_Prices['Volume_JP'].tail(No_Obs)
-#ax.scatter(q, s, label='GameStop', alpha=0.5)
-ax.scatter(q1, s1, label='Goldman', alpha=0.5, color='y')
-ax.scatter(q2, s2, label='JP Morgan', alpha=0.5)
-ax.set(title='Vol/Price Scatter plot', ylabel='Volume"', xlabel='Prices')
+fig, ax = plt.subplots(3,2)
+fig.set_size_inches([10, 6])
+fig.suptitle('Volume / Price Scatter', fontsize=16)
+#No_Obs =2500
+q = GS['Close'] #'.tail(No_Obs)
+s = GS['Volume'] #.tail(No_Obs)
+q1 = GM['Close'] #.tail(No_Obs)
+s1 = GM['Volume']#.tail(No_Obs)
+q2 = JP['Close']#.tail(No_Obs)
+s2 = JP['Volume']#.tail(No_Obs)
+q3 = AZ['Close']#.tail(No_Obs)
+s3 = AZ['Volume']#.tail(No_Obs)
+q4 = FB['Close']#.tail(No_Obs)
+s4 = FB['Volume']#.tail(No_Obs)
+q5 = MS['Close']#.tail(No_Obs)
+s5 = MS['Volume']#.tail(No_Obs)
+ax[0,0].scatter(q, s, label='GameStop', c='tab:red')
+ax[1,0].scatter(q1, s1, label='Goldman', c='tab:blue')
+ax[2,0].scatter(q2, s2, label='JP Morgan', c='tab:orange')
+ax[0,1].scatter(q3, s3, label='Amazon', c='tab:purple')
+ax[1,1].scatter(q4, s4, label='Facebook', c='tab:pink')
+ax[2,1].scatter(q5, s5, label='Microsoft', c='tab:cyan')
+ax[0,0].legend(loc='upper right')
+ax[1,0].legend(loc='upper right')
+ax[2,0].legend(loc='upper right')
+ax[0,1].legend(loc='upper right')
+ax[1,1].legend(loc='upper right')
+ax[2,1].legend(loc='upper right')
+#ax.set(title='Vol/Price Scatter plot', ylabel='Volume"', xlabel='Prices')
 #add linear regression line
-X = q1.values.reshape(-1, 1)
-Y = s1.values.reshape(-1, 1)
-ln = LinearRegression()
-ln.fit(X, Y)
-Y_pred = ln.predict(X)
-plt.plot(X, Y_pred, color='red')
+#X = q1.values.reshape(-1, 1)
+#Y = s1.values.reshape(-1, 1)
+#ln = LinearRegression()
+#ln.fit(X, Y)
+#Y_pred = ln.predict(X)
+#plt.plot(X1, Y_pred1, color='red')
 #add linear regression line2
-X1 = q2.values.reshape(-1, 1)
-Y1 = s2.values.reshape(-1, 1)
-ln1 = LinearRegression()
-ln1.fit(X1, Y1)
-Y_pred1 = ln1.predict(X1)
-plt.plot(X1, Y_pred1, color='red')
-#plt.show()
+#X1 = q2.values.reshape(-1, 1)
+#Y1 = s2.values.reshape(-1, 1)
+#ln1 = LinearRegression()
+#ln1.fit(X1, Y1)
+#Y_pred1 = ln1.predict(X1)
+#plt.plot(X1, Y_pred1, color='red')
+plt.show()
 
 #3a seaborn plot of 1 stock price and volume (similar to above
 f, ax = plt.subplots(figsize=(6, 6))
@@ -249,7 +271,7 @@ sns.histplot(x=q2, y=s2, bins=50, pthresh=.1, cmap="mako")
 sns.kdeplot(x=q2, y=s2, levels=5, color="w", linewidths=1)
 ax.set(title='Vol/Price Scatter plot', ylabel='Volume"', xlabel='Price')
 ax.legend(loc='best')
-#plt.show()
+plt.show()
 
 #4a seaborn scatter plot Change in pr / change in volume
 No_Obs =1500
