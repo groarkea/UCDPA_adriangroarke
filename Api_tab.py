@@ -1,6 +1,14 @@
 import numpy as np
 import requests
 
+data=requests.get('https://www.alphavantage.co/query?function=OVERVIEW&symbol=GME&apikey=RVZ3KJWM4Q6RNVCJ')
+print(data.text)
+print(type(data))
+parsed_data=data.json()
+print(type(parsed_data))
+output="GameStop's 52 Week high is " + parsed_data['52WeekHigh'] + " and GameStop's 52 Week low is " + parsed_data['52WeekLow']
+print(output)
+
 
 data4=requests.get('https://www.alphavantage.co/query?function=OVERVIEW&symbol=JPM&apikey=RVZ3KJWM4Q6RNVCJ')
 print(data4.text)
