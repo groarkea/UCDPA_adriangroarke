@@ -6,6 +6,6 @@ def Vol_by_Pr(a,b):
 def All_stocks_Value(a,b,c,d,e,f):
     return a+b+c+d+e+f
 
-def PC_Format(a):
+def Percent_Format(a):
     return (str(np.round(a, 3) * 100) + '%')
 
