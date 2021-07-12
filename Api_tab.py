@@ -9,6 +9,15 @@ print(type(parsed_data))
 output="GameStop's 52 Week high is " + parsed_data['52WeekHigh'] + " and GameStop's 52 Week low is " + parsed_data['52WeekLow']
 print(output)
 
+a=parsed_data['Symbol']
+b=parsed_data['52WeekHigh']
+c=parsed_data['52WeekLow']
+my_dic={'ID':a,'52High':b,'52Low':c}
+print(my_dic)
+print(type(my_dic))
+
+
+
 
 data4=requests.get('https://www.alphavantage.co/query?function=OVERVIEW&symbol=JPM&apikey=RVZ3KJWM4Q6RNVCJ')
 print(data4.text)
