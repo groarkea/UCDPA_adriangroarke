@@ -129,6 +129,8 @@ print(f'Merged data overview:{Merged_Prices.transpose()}')
 print(f'Shape of Merged prices is:{Merged_Prices.shape}')
 print(f'Columns of Merged prices are:{Merged_Prices.columns}')
 print(f'Columns of Merged prices1 are:{Merged_Prices1.columns}')
+print(f'Shape of Merged prices1 is:{Merged_Prices1.shape}')
+print(f'Merged data 1 overview:{Merged_Prices1.transpose()}')
 # check null values
 print(Merged_Prices.isna().sum())
 
@@ -191,7 +193,7 @@ ax.plot(x0,y0, marker="v", linestyle="dotted",  label='GameStop')
 ax.plot(x0,y1, marker="v", linestyle="dotted",  label='Facebook')
 ax.plot(x0,y2, marker="v", linestyle="dotted",  label='Microsoft')
 ax.plot(x0,y3, marker="v", linestyle="dotted",  label='Amazon')
-ax.set(title='7 day percentage price change', ylabel='Price', xlabel='Date')
+ax.set(title='7 day percentage price change', ylabel='Percentage Change in Price', xlabel='Date')
 ax.set_xticklabels(x0, rotation=90, size=12)
 ax.legend(loc='best')
 fig.savefig("7 day percentage price changes.png")
@@ -225,6 +227,7 @@ ax.legend(loc='best')
 fig.savefig("Trading Value.png")
 plt.show()
 
+
 #3 scatter plt all 3 close prices and volume
 fig, ax = plt.subplots(3,2)
 fig.set_size_inches([10, 6])
@@ -253,39 +256,43 @@ ax[2,0].legend(loc='upper right')
 ax[0,1].legend(loc='upper right')
 ax[1,1].legend(loc='upper right')
 ax[2,1].legend(loc='upper right')
+ax[0,0].set(ylabel='Volume')
+ax[2,1].set(xlabel='Price')
 fig.savefig("Volume and Price Scatter.png")
 plt.show()
 
 
 
 #4a seaborn scatter plot Change in pr / change in volume
-No_Obs =1500
-q = Merged_Prices1['Prct_chg_pr_7d_GS'].tail(No_Obs)
-s = Merged_Prices1['Prct_chg_pr_7d_AZ'].tail(No_Obs)
+#No_Obs =2184 #1500
+q = Merged_Prices1['Prct_chg_pr_7d_GS']#.head(No_Obs)
+s = Merged_Prices1['Prct_chg_pr_7d_AZ']#.head(No_Obs)
 
 
 #5a
-f, ax = plt.subplots(figsize=(6, 6))
+f, ax = plt.subplots() #figsize=(3,3)
 sns.scatterplot(x=q, y=s, s=5, color=".15")
 sns.histplot(x=q, y=s, bins=50, pthresh=.1, cmap="mako")
 sns.kdeplot(x=q, y=s, levels=5, color="w", linewidths=1)
 ax.set(title='Relative 7 day percentage change in price', ylabel='Amazon', xlabel='GameStop')
 ax.legend(loc='best')
-fig.savefig("Relative Price change.png")
+f.savefig("Relative Price change.png")
 plt.show()
 
 
 
 
 
-# 5 scatter of high and low
+# 5 linear regression
 fig, ax = plt.subplots()
-No_Obs =5000
-q=Merged_Prices1.sort_values('Date', ascending=False)
-q2 = q['Close_GS'].tail(No_Obs)
-s2 = Merged_Prices1['Close_AZ'].tail(No_Obs)
+#No_Obs =2184
+#q=Merged_Prices1.sort_values('Date', ascending=True)
+q2 = Merged_Prices1['Prct_chg_pr_7d_GS']#.head(No_Obs)
+s2 = Merged_Prices1['Prct_chg_pr_7d_AZ']#.head(No_Obs)
+q2_last50 = Merged_Prices1['Prct_chg_pr_7d_GS'].tail(50)
+s2_last50 = Merged_Prices1['Prct_chg_pr_7d_AZ'].tail(50)
 ax.scatter(q2, s2, label='GameStop / Amazon price relationship', alpha=0.5)
-ax.set(title='Close Prices', ylabel='Amazon', xlabel='GameStop')
+ax.set(title='7-day percentage price changes', ylabel='Amazon', xlabel='GameStop')
 X = q2.values.reshape(-1, 1)
 Y = s2.values.reshape(-1, 1)
 ln = LinearRegression()
@@ -299,47 +306,58 @@ r_sq=ln.score(X,Y)
 print('coefficient of determination (GameStop/Amazon):', r_sq)
 print('slope (GameStop/Amazon):', ln.coef_)
 
+print('Standard deviation of GameStop:', q2.std())
+print('Standard deviation of Amazon:', s2.std())
+cov_matrix1 = cov(q2,s2)
+weights1= np.array([0.5,0.5])
+port_variance1 = np.dot(weights1.T,np.dot(cov_matrix1,weights1))
+port_std1=np.sqrt(port_variance1)
 
-
+Corr = np.corrcoef(q2,s2)
+print('Correlation:', Corr)
+print('Standard deviation of GameStop and Amazon combined:', port_std1)
+print('Recent Standard deviation of GameStop:', q2_last50.std())
+print('Recent Standard deviation of Amazon:', s2_last50.std())
+cov_matrix2 = cov(q2_last50,s2_last50)
+weights2= np.array([0.5,0.5])
+port_variance2 = np.dot(weights2.T,np.dot(cov_matrix2,weights2))
+port_std2=np.sqrt(port_variance2)
+print('Recent Standard deviation of GameStop and Amazon combined:', port_std2)
 
 
 # Calculate volatility of Bank Stocks
-volatility_GM =Merged_Prices['Prct_chg_pr_1d_GM'].std()
-volatility_JP = Merged_Prices['Prct_chg_pr_1d_GM'].std()
-#volatility_GM = Merged_Prices['Close_GM'].std()
-#volatility_MS = Merged_Prices['Close_MS'].std()
+GM_returns = Merged_Prices['Prct_chg_pr_1d_GM']
+JP_returns = Merged_Prices['Prct_chg_pr_1d_JP']
+GM_volatility =GM_returns.std()
+JP_volatility =JP_returns.std()
 
-x = np.array(Merged_Prices['Prct_chg_pr_1d_GM'],Merged_Prices['Prct_chg_pr_1d_GM'])
+x = np.array(GM_returns,JP_returns)
 CoVar = np.cov(x)
-Corr = np.corrcoef(x)
-#print(f'Covariance of Bank stocks: {CoVar}')
-#print(f'Correlation: {Corr}')
-#print(f'Volatility of Goldman Stock: {volatility_GM}')
-#print(f'Volatility of JP Morgan: {volatility_JP}')
-#print(f'Volatility of Goldman Stock: {volatility_GM}')
-#print(f'Volatility of Microsoft Stock: {volatility_MS}')
+Corr1 = np.corrcoef(GM_returns,JP_returns)
+
+print('Correlation bank stocks:', Corr1)
 
 # calculate portfolio variance
-a= Merged_Prices['Prct_chg_pr_1d_GM']
-b= Merged_Prices['Prct_chg_pr_1d_JP']
-#c= Merged_Prices['Prct_chg_pr_7d_GM']
-#d= Merged_Prices['Prct_chg_pr_7d_MS']
 
-cov_matrix = cov(a,b)
+c= GM_returns.mean()
+d= JP_returns.mean()
+e=(c+d)/2
+cov_matrix = cov(GM_returns,JP_returns)
 weights= np.array([0.5,0.5])
 port_variance = np.dot(weights.T,np.dot(cov_matrix,weights))
-GM_Std= Merged_Prices['Prct_chg_pr_1d_GM'].std()
-JP_Std= Merged_Prices['Prct_chg_pr_1d_JP'].std()
+
 
 
 port_variance_frmt = (str(np.round(port_variance, 3) * 100) + '%')
 port_std=np.sqrt(port_variance)
 portfolio_Std = Cl.Percent_Format(port_std)
 
-
+print(f'Goldman annualised return: {c}')
+print(f'JP Morgan mean return: {d}')
+print(f'Portfolio return: {e}')
 print(f'Portfolio Covariance: {cov_matrix}')
-print(f'Goldman Std: {GM_Std}')
-print(f'JP Morgan Std: {JP_Std}')
+print(f'Goldman Std: {GM_volatility}')
+print(f'JP Morgan Std: {JP_volatility}')
 print(f'Portfolio Std: {portfolio_Std}')
 
 #Group mean prices annually
@@ -375,8 +393,6 @@ clc2 = npf.irr(list2[0:6])
 
 print(f'Stock Option return from 2012 to 2020: {round(clc,2)}') # Investor has option to buy stock each month.
 print(f'Stock Option return from 2012 to 2016: {round(clc2,2)}')
-
-
 
 
 

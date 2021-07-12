@@ -7,7 +7,7 @@ print(data4.text)
 print(type(data4))
 parsed_data4=data4.json()
 print(type(parsed_data4))
-output=parsed_data4['Description'] + ' The companies earnings per share is ' + parsed_data4['EPS']
+output=parsed_data4['Description'] + "' The company's earnings per share is '" + parsed_data4['EPS']
 print(output)
 
 data5=requests.get('https://www.alphavantage.co/query?function=BALANCE_SHEET&symbol=JPM&apikey=RVZ3KJWM4Q6RNVCJ')
