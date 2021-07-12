@@ -1,9 +1,9 @@
-import datetime
+
 
 import pandas as pd
 import numpy as np
 import numpy_financial as npf
-from matplotlib.dates import DateFormatter
+
 
 import myCalcs as Cl
 import matplotlib.pyplot as plt
@@ -167,7 +167,7 @@ ax[2,0].legend(loc='best')
 ax[0,1].legend(loc='best')
 ax[1,1].legend(loc='best')
 ax[2,1].legend(loc='best')
-#fig.savefig("Stock_Prices.png")
+fig.savefig("Historical Stock_Prices.png")
 plt.show()
 
 
@@ -194,7 +194,7 @@ ax.plot(x0,y3, marker="v", linestyle="dotted",  label='Amazon')
 ax.set(title='7 day percentage price change', ylabel='Price', xlabel='Date')
 ax.set_xticklabels(x0, rotation=90, size=12)
 ax.legend(loc='best')
-#fig.savefig("Stock_Prices.png")
+fig.savefig("7 day percentage price changes.png")
 plt.show()
 
 
@@ -222,6 +222,7 @@ ax.bar(i,j6, bottom=j1+j2+j3+j4+j5, label='Microsoft')
 ax.plot(i,h)
 ax.set(title='Total Trade Value Stacked', ylabel='Value in bns', xlabel='Year')
 ax.legend(loc='best')
+fig.savefig("Trading Value.png")
 plt.show()
 
 #3 scatter plt all 3 close prices and volume
@@ -252,6 +253,7 @@ ax[2,0].legend(loc='upper right')
 ax[0,1].legend(loc='upper right')
 ax[1,1].legend(loc='upper right')
 ax[2,1].legend(loc='upper right')
+fig.savefig("Volume and Price Scatter.png")
 plt.show()
 
 
@@ -269,6 +271,7 @@ sns.histplot(x=q, y=s, bins=50, pthresh=.1, cmap="mako")
 sns.kdeplot(x=q, y=s, levels=5, color="w", linewidths=1)
 ax.set(title='Relative 7 day percentage change in price', ylabel='Amazon', xlabel='GameStop')
 ax.legend(loc='best')
+fig.savefig("Relative Price change.png")
 plt.show()
 
 
@@ -289,6 +292,7 @@ ln = LinearRegression()
 ln.fit(X, Y)
 Y_pred = ln.predict(X)
 plt.plot(X, Y_pred, color='red')
+fig.savefig("Linear regression.png")
 plt.show()
 
 r_sq=ln.score(X,Y)
